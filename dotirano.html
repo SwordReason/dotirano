@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+    <meta charset='UTF-8'>
+    <title>どちらの回答がお好みですかジェネレーター</title>
+    <style>
+        CANVAS {
+            display: block;
+        }
+        #title{
+            width: 300px;
+        }
+        [id^=text]{
+            vertical-align: top;
+            width: 400px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>どちらの回答がお好みですかジェネレーター</h1>    
+    <input type="text" id="title" placeholder="どちらの回答がお好みですか？">
+    <br>
+    <textarea id="text1" placeholder="左のテキスト"></textarea>
+    
+    <textarea id="text2" placeholder="右のテキスト"></textarea>
+    <br>
+    <button onclick="generateImage()">つくる！</button>
+    <br>
+    
+        <CANVAS id="myCanvas" width="1200" height="600">
+        </CANVAS>    
+    <br>
+    <a id="downloadLink" download="generated-image.png">画像をダウンロード</a>
+
+    <script>
+        const RIGHT_X = 45;
+        const Y = 90;
+        const WIDTH = 550;
+        const HEIGHT = 500;
+        const LEFT_X = RIGHT_X + WIDTH + 10;
+        const RADIUS = 30;
+        const LARIAT = document;
+        const TEXT_MARGIN_X = 20;
+        const TEXT_MARGIN_Y = 50;
+        const LINEHEIGHT = 30;
+        const CANVAS = LARIAT.getElementById('myCanvas');
+        const CONTEXT = CANVAS.getContext('2d');
+
+        function drawRoundedBorder(x, y, width, height, radius) {
+            CONTEXT.beginPath();
+            CONTEXT.moveTo(x + radius, y); // 左上
+            CONTEXT.arcTo(x + width, y, x + width, y + height, radius); // 上右
+            CONTEXT.arcTo(x + width, y + height, x, y + height, radius); // 下右
+            CONTEXT.arcTo(x, y + height, x, y, radius); // 下左
+            CONTEXT.arcTo(x, y, x + width, y, radius); // 上左
+            CONTEXT.closePath();
+            CONTEXT.stroke(); // 描画
+        }
+        function wrapText(text, x, y, maxWidth) {
+            let words = text.split(' ');
+            let line = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                let testLine = line + text[i]; // 文字を一つずつ追加
+                let testWidth = CONTEXT.measureText(testLine).width;
+
+                // 幅を超えたら現在の行を描画して、新しい行に移動
+                if (testWidth > maxWidth && line !== '' || text[i] == "\n" && line !== '') {
+                    CONTEXT.fillText(line, x, y);
+                    line = text[i]; // 次の行は超えた文字から始める
+                    y += LINEHEIGHT;
+                } else {
+                    line = testLine;
+                }
+            }
+            CONTEXT.fillText(line, x, y);
+        }
+        function generateImage() {
+            
+            title = LARIAT.getElementById('title').value;
+            leftText = LARIAT.getElementById('text1').value;
+            rightText = LARIAT.getElementById('text2').value;
+            if(title == ""){
+                title = "どちらの回答がお好みですか？";
+                console.log(title);
+            }
+
+            
+
+            // 背景描画
+            CONTEXT.fillStyle = 'white';
+            CONTEXT.fillRect(0, 0, CANVAS.width, CANVAS.height);
+            
+            // 枠線描画
+            CONTEXT.strokeStyle = 'black'; // ボーダーの色
+            CONTEXT.lineWidth = 0.2; // ボーダーの太さ
+            drawRoundedBorder(RIGHT_X, Y, WIDTH, HEIGHT, RADIUS);
+            drawRoundedBorder(LEFT_X, Y, WIDTH, HEIGHT, RADIUS);
+            
+            //テキスト描画
+            CONTEXT.fillStyle = 'black';
+            CONTEXT.font = '30px Arial';
+            CONTEXT.textAlign = 'center';
+            CONTEXT.fillText(title, CANVAS.width / 2, CANVAS.height / 10);
+            
+            CONTEXT.font = '20px Arial';
+            CONTEXT.textAlign = 'left';
+            wrapText(leftText, RIGHT_X + TEXT_MARGIN_X, Y + TEXT_MARGIN_Y,WIDTH - TEXT_MARGIN_X * 2);//ちがう
+            wrapText(rightText, LEFT_X + TEXT_MARGIN_X, Y + TEXT_MARGIN_Y,WIDTH - TEXT_MARGIN_X * 2);
+            
+            // ダウンロードリンク生成
+            const downloadLink = LARIAT.getElementById('downloadLink');
+            downloadLink.href = CANVAS.toDataURL();
+        }
+    </script>
+</body>
+</html>
