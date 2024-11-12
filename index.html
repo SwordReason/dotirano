@@ -26,6 +26,8 @@
     <textarea id="text2" placeholder="右のテキスト"></textarea>
     <br>
     <button onclick="generateImage()">つくる！</button>
+    <br>    
+    <button onclick="endlessGenerate()" id="endlessButton">つくりつづける！</button>
     <br>
     
         <CANVAS id="myCanvas" width="1200" height="600">
@@ -46,6 +48,8 @@
         const LINEHEIGHT = 30;
         const CANVAS = LARIAT.getElementById('myCanvas');
         const CONTEXT = CANVAS.getContext('2d');
+        const ENDLESS_BUTTON = LARIAT.getElementById('endlessButton');
+        let isGenerating = false;
 
         function drawRoundedBorder(x, y, width, height, radius) {
             CONTEXT.beginPath();
@@ -76,8 +80,7 @@
             }
             CONTEXT.fillText(line, x, y);
         }
-        function generateImage() {
-            
+        function generateImage() {            
             title = LARIAT.getElementById('title').value;
             leftText = LARIAT.getElementById('text1').value;
             rightText = LARIAT.getElementById('text2').value;
@@ -112,6 +115,23 @@
             // ダウンロードリンク生成
             const downloadLink = LARIAT.getElementById('downloadLink');
             downloadLink.href = CANVAS.toDataURL();
+        }
+
+        function endlessGenerate(){
+            isGenerating = true;
+            ENDLESS_BUTTON.textContent = "やめれ！";
+            ENDLESS_BUTTON.onclick = stopEndlessGenerate;
+            endlessMain();
+        }
+        function endlessMain(){
+            generateImage();
+            if(isGenerating)
+                requestAnimationFrame(endlessMain);
+        }
+        function stopEndlessGenerate(){
+            isGenerating = false;
+            ENDLESS_BUTTON.textContent = "つくりつづける！";
+            ENDLESS_BUTTON.onclick = endlessGenerate;
         }
     </script>
 </body>
